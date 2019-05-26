@@ -8,8 +8,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.android.synthetic.main.activity_main.local_view
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.webrtc.IceCandidate
+import org.webrtc.SessionDescription
 
+@ExperimentalCoroutinesApi
+@KtorExperimentalAPI
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -18,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var rtcClient: RTCClient
+    private lateinit var signallingClient: SignallingClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +43,25 @@ class MainActivity : AppCompatActivity() {
     private fun onCameraPermissionGranted() {
         rtcClient = RTCClient(application, local_view)
         rtcClient.startLocalVideoCapture()
+        signallingClient = SignallingClient(createSignallingClientListener())
+    }
+
+    private fun createSignallingClientListener() = object : SignallingClientListener {
+        override fun onConnectionEstablished() {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun onOfferReceived(description: SessionDescription) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun onAnswerReceived(description: SessionDescription) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun onIceCandidateReceived(iceCandidate: IceCandidate) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
     private fun requestCameraPermission(dialogShown: Boolean = false) {
@@ -72,5 +98,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun onCameraPermissionDenied() {
         Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onDestroy() {
+        signallingClient.destroy()
+        super.onDestroy()
     }
 }
