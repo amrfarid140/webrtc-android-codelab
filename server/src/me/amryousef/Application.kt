@@ -1,11 +1,5 @@
 package me.amryousef
 
-import com.google.auth.oauth2.GoogleCredentials
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.Message
-import com.google.firebase.messaging.Notification
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.CallLogging
@@ -16,13 +10,11 @@ import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.close
 import io.ktor.http.cio.websocket.readText
-import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import java.io.FileInputStream
 import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -48,51 +40,15 @@ fun Application.module(testing: Boolean = false) {
         gson {
         }
     }
-
-    val doorOutData = ConflatedBroadcastChannel<String>()
-    val clientOutData = ConflatedBroadcastChannel<String>()
-    val serviceAccount = FileInputStream("service_key.json")
-    val firebaseOptions = FirebaseOptions.Builder()
-        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-        .build()
-    FirebaseApp.initializeApp(firebaseOptions)
+    val outData = ConflatedBroadcastChannel<String>()
 
     routing {
 
-        post(path = "/door/ring") {
-            FirebaseMessaging
-                .getInstance()
-                .send(
-                    Message.builder()
-                        .setNotification(
-                            Notification(
-                                "Someone is at the door",
-                                "Check the camera stream"
-                            )
-                        )
-                        .build()
-                )
-        }
-
-        webSocket(path = "/door/out") {
-            println("Door out connected")
-            try {
-                for (data in doorOutData.openSubscription()) {
-                    println("Door frame sent $data")
-                    send(Frame.Text(data))
-                }
-            } finally {
-                close(CloseReason(CloseReason.Codes.SERVICE_RESTART, "Restart Connection"))
-            }
-        }
-
-        webSocket("/door/in") {
-            println("Door in connected")
+        webSocket(path = "/in") {
             try {
                 for (data in incoming) {
                     if (data is Frame.Text) {
-                        println("Door frame received $data")
-                        clientOutData.send(data.readText())
+                        outData.send(data.readText())
                     }
                 }
             } finally {
@@ -100,26 +56,10 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
-        webSocket("/client/out") {
-            println("Client out connected")
+        webSocket(path = "/out") {
             try {
-                for (data in clientOutData.openSubscription()) {
-                    println("Client frame sent $data")
+                for (data in outData.openSubscription()) {
                     send(Frame.Text(data))
-                }
-            } finally {
-                close(CloseReason(CloseReason.Codes.SERVICE_RESTART, "Restart Connection"))
-            }
-        }
-
-        webSocket("/client/in") {
-            println("Client in connected")
-            try {
-                for (data in incoming) {
-                    if (data is Frame.Text) {
-                        println("Client frame received $data")
-                        doorOutData.send(data.readText())
-                    }
                 }
             } finally {
                 close(CloseReason(CloseReason.Codes.SERVICE_RESTART, "Restart Connection"))

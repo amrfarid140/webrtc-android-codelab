@@ -36,6 +36,6 @@ dependencies {
     compile "io.ktor:ktor-server-core:$ktor_version"
     compile "io.ktor:ktor-websockets:$ktor_version"
     compile "io.ktor:ktor-gson:$ktor_version"
-    compile "com.google.firebase:firebase-admin:6.8.1"
+    
     testCompile "io.ktor:ktor-server-tests:$ktor_version"
 }
