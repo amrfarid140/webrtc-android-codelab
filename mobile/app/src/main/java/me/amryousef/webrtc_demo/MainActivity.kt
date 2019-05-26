@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.android.synthetic.main.activity_main.local_view
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,6 +16,8 @@ class MainActivity : AppCompatActivity() {
         private const val CAMERA_PERMISSION_REQUEST_CODE = 1
         private const val CAMERA_PERMISSION = Manifest.permission.CAMERA
     }
+
+    private lateinit var rtcClient: RTCClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +31,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             onCameraPermissionGranted()
         }
+    }
+
+    private fun onCameraPermissionGranted() {
+        rtcClient = RTCClient(application, local_view)
+        rtcClient.startLocalVideoCapture()
     }
 
     private fun requestCameraPermission(dialogShown: Boolean = false) {
@@ -60,10 +68,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             onCameraPermissionDenied()
         }
-    }
-
-    private fun onCameraPermissionGranted() {
-        Toast.makeText(this, "Camera Permission Granted", Toast.LENGTH_LONG).show()
     }
 
     private fun onCameraPermissionDenied() {
