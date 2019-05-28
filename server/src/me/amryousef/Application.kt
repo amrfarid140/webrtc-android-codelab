@@ -6,16 +6,15 @@ import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
 import io.ktor.gson.gson
-import io.ktor.http.cio.websocket.CloseReason
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.close
-import io.ktor.http.cio.websocket.readText
+import io.ktor.http.cio.websocket.*
 import io.ktor.routing.routing
+import io.ktor.websocket.WebSocketServerSession
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import java.time.Duration
+import java.util.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -40,29 +39,28 @@ fun Application.module(testing: Boolean = false) {
         gson {
         }
     }
-    val outData = ConflatedBroadcastChannel<String>()
+
+    val connections = Collections.synchronizedMap(mutableMapOf<String, WebSocketServerSession>())
 
     routing {
-
-        webSocket(path = "/in") {
+        webSocket(path = "/connect") {
+            val id = UUID.randomUUID().toString()
+            connections[id] = this
+            println("Connected clients = ${connections.size}")
             try {
                 for (data in incoming) {
                     if (data is Frame.Text) {
-                        outData.send(data.readText())
+                        val clients = connections.filter { it.key != id }
+                        val text = data.readText()
+                        clients.forEach {
+                            println("Sending to:${it.key}")
+                            println("Sending $text")
+                            it.value.send(text)
+                        }
                     }
                 }
             } finally {
-                close(CloseReason(CloseReason.Codes.SERVICE_RESTART, "Restart Connection"))
-            }
-        }
-
-        webSocket(path = "/out") {
-            try {
-                for (data in outData.openSubscription()) {
-                    send(Frame.Text(data))
-                }
-            } finally {
-                close(CloseReason(CloseReason.Codes.SERVICE_RESTART, "Restart Connection"))
+                connections.remove(id)
             }
         }
     }
