@@ -12,12 +12,12 @@ It's based on official WebRTC native library version **`1.0.27771`**
 
 The [official](https://webrtc.org/) description 
 
-"WebRTC is a free, open project that provides browsers and mobile applications with Real-Time Communications (RTC) capabilities via simple APIs. The WebRTC components have been optimized to best serve this purpose."
+"WebRTC is a free, open project that provides browsers and mobile applications with Real-Time Communications (RTC) capabilities via simple APIs. The WebRTC components have been optimised to best serve this purpose."
 
 
 Simply, it's a cross-platform API that allows developers to implement peer-to-peer real-time communication. 
 
-Imagine an API that allows you to send voice, video and/or data (text,images...etc) across mobile apps and web apps. 
+Imagine an API that allows you to send voice, video and/or data (text, images...etc) across mobile apps and web apps. 
 
 ---
 ## How does it work (The simple version)
@@ -32,7 +32,7 @@ You have a signalling server that coordinates the initiation of the communicatio
 
 The signalling server then sends this "offer" to (B).
 
-(B) recieves the offer and it will create an SDP of it's own and send it back to the signalling server. We will call it "answer". 
+(B) receives the offer and it will create an SDP of its own and send it back to the signalling server. We will call it "answer". 
 
 The signalling server then send this "answer" to (A).
 
@@ -54,9 +54,9 @@ Let's label the device we are working on as a "Peer". We need to setup its conne
 
 WebRTC library has `PeerConnectionFactory` that creates the `PeerConnection` for you. However, we need to `initialize` and `configure` this factory first.
 
-### Initializing `PeerConnectionFactory`
+### Initialising `PeerConnectionFactory`
 
-First we need to say that we need to trace what's happening in th background then specify which features we want the Native library to turn on. In our case we want `H264` video format.
+First we need to say that we need to trace what's happening in the background then specify which features we want the Native library to turn on. In our case we want `H264` video format.
 
 ```java
 val options = PeerConnectionFactory.InitializationOptions.builder(context)
@@ -70,7 +70,7 @@ val options = PeerConnectionFactory.InitializationOptions.builder(context)
 
 Now we can use `PeerConnectionFactory.Builder` to build an instance of `PeerConnectionFactory`.
 
-When building `PeerConnectionFactory` it's crucial to specify the video codecs you are using. In this sample, we will be usingthe default video codecs. In addition, we will be disabling encryption.
+When building `PeerConnectionFactory` it's crucial to specify the video codecs you are using. In this sample, we will be using the default video codecs. In addition, we will be disabling encryption.
 
 ```java
 val rootEglBase: EglBase = EglBase.create()
@@ -87,7 +87,7 @@ PeerConnectionFactory
 
 ### Setting the video output
 
-Native WebRTC library relies on `SurfaceViewRenderer` view to output the videp data. It's a `SurfaceView` that is setup to work will the callbacks of other WebRTC functionalities.
+Native WebRTC library relies on `SurfaceViewRenderer` view to output the video data. It's a `SurfaceView` that is setup to work will the callbacks of other WebRTC functionalities.
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -110,7 +110,7 @@ Native WebRTC library relies on `SurfaceViewRenderer` view to output the videp d
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
-We will also need to mirror the video stream we are providing and enable hardware accelration.
+We will also need to mirror the video stream we are providing and enable hardware acceleration.
 
 ```java
 local_view.setMirror(true)
@@ -167,7 +167,7 @@ This should run the server on port `8080`. You can change the port from `applica
 
 [Ktor](https://ktor.io/) is also used as a client in the mobile app to send/receive data from `WebSocket`. 
 
-Checkout this [file](https://github.com/amrfarid140/webrtc-android-codelab/blob/step/remote-video/mobile/app/src/main/java/me/amryousef/webrtc_demo/SignallingClient.kt) for implemenation details.
+Checkout this [file](https://github.com/amrfarid140/webrtc-android-codelab/blob/step/remote-video/mobile/app/src/main/java/me/amryousef/webrtc_demo/SignallingClient.kt) for implementation details.
 
 **Note that you will beed to change `HOST_ADDRESS` to match your IP address for your laptop**
 
@@ -330,7 +330,7 @@ First, You will need to checkout the [master branch](https://github.com/amrfarid
 
 Second, Open `server` in IntelliJ Idea and run the server. Make sure it's running on port 8080. 
 
-Third, Open `mobile` in Android Studio then navigate to `SignallingClient`. You find `HOST_ADDRESS`, change it's value with your local IP address. 
+Third, Open `mobile` in Android Studio then navigate to `SignallingClient`. You find `HOST_ADDRESS`, change its value with your local IP address. 
 
 Finally, use Android studio to install the application on two different devices then click the "call" button from one of them. If all goes well, a voice call should've started for you.
 
