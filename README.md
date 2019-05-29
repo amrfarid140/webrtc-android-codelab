@@ -336,10 +336,10 @@ Finally, use Android studio to install the application on two different devices 
 
 Here's me testing it out.
 
+
 ![Caller](./docs/caller.gif)
-
+*
 ![Receiver](./docs/receiver.gif)
-
 
 
 
