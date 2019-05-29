@@ -334,6 +334,12 @@ Third, Open `mobile` in Android Studio then navigate to `SignallingClient`. You 
 
 Finally, use Android studio to install the application on two different devices then click the "call" button from one of them. If all goes well, a voice call should've started for you.
 
+Here's me testing it out.
+
+![Caller](./docs/caller.gif)
+
+![Receiver](./docs/receiver.gif)
+
 
 
 
