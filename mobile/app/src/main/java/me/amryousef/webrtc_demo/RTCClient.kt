@@ -2,19 +2,8 @@ package me.amryousef.webrtc_demo
 
 import android.app.Application
 import android.content.Context
-import org.webrtc.Camera2Enumerator
-import org.webrtc.DefaultVideoDecoderFactory
-import org.webrtc.DefaultVideoEncoderFactory
-import org.webrtc.EglBase
-import org.webrtc.IceCandidate
-import org.webrtc.MediaConstraints
-import org.webrtc.PeerConnection
-import org.webrtc.PeerConnectionFactory
-import org.webrtc.SdpObserver
-import org.webrtc.SessionDescription
-import org.webrtc.SurfaceTextureHelper
-import org.webrtc.SurfaceViewRenderer
-import org.webrtc.VideoCapturer
+import org.webrtc.*
+import org.webrtc.voiceengine.WebRtcAudioUtils
 
 class RTCClient(
     context: Application,
@@ -41,6 +30,10 @@ class RTCClient(
     private val videoCapturer by lazy { getVideoCapturer(context) }
     private val localVideoSource by lazy { peerConnectionFactory.createVideoSource(false) }
     private val peerConnection by lazy { buildPeerConnection(observer) }
+    private val constraints = MediaConstraints().apply {
+        mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
+        mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+    }
 
     private fun initPeerConnectionFactory(context: Application) {
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
@@ -90,14 +83,16 @@ class RTCClient(
         localVideoTrack.addSink(localVideoOutput)
         val localStream = peerConnectionFactory.createLocalMediaStream(LOCAL_STREAM_ID)
         localStream.addTrack(localVideoTrack)
+        val audioSource = peerConnectionFactory.createAudioSource(MediaConstraints())
+        val audioTrack = peerConnectionFactory.createAudioTrack("audio_track", audioSource).apply {
+            setEnabled(true)
+            setVolume(100.0)
+        }
+        localStream.addTrack(audioTrack)
         peerConnection?.addStream(localStream)
     }
 
     private fun PeerConnection.call(sdpObserver: SdpObserver) {
-        val constraints = MediaConstraints().apply {
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
-        }
-
         createOffer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
 
@@ -120,10 +115,6 @@ class RTCClient(
     }
 
     private fun PeerConnection.answer(sdpObserver: SdpObserver) {
-        val constraints = MediaConstraints().apply {
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
-        }
-
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(p0: SessionDescription?) {
                 setLocalDescription(object : SdpObserver {

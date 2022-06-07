@@ -1,7 +1,9 @@
 package me.amryousef.webrtc_demo
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -83,6 +85,11 @@ class MainActivity : AppCompatActivity() {
         override fun onOfferReceived(description: SessionDescription) {
             rtcClient.onRemoteSessionReceived(description)
             rtcClient.answer(sdpObserver)
+            (getSystemService(Context.AUDIO_SERVICE) as AudioManager).apply {
+                stopBluetoothSco()
+                isBluetoothScoOn = false
+                isSpeakerphoneOn = true
+            }
             remote_view_loading.isGone = true
         }
 
